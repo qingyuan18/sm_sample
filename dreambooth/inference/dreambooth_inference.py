@@ -94,13 +94,10 @@ def model_fn(model_dir):
     torch.backends.cudnn.benchmark = True
     torch.backends.cuda.matmul.allow_tf32 = True
 
-
-    model = model.to("cuda")
-    model.enable_attention_slicing()
     try:
-        print("begin load deepspeed....")    
-        deepspeed.init_inference(
-            model=model,      # Transformers models
+        print("begin load deepspeed....")
+        model=deepspeed.init_inference(
+            model=getattr(model,"model", model),      # Transformers models
             mp_size=1,        # Number of GPU
             dtype=torch.float16, # dtype of the weights (fp16)
             replace_method="auto", # Lets DS autmatically identify the layer to replace
@@ -110,6 +107,11 @@ def model_fn(model_dir):
     except Exception as e:
         print("deepspeed accelarate excpetion!")
         print(e)
+
+
+    model = model.to("cuda")
+    model.enable_attention_slicing()
+
     return model
 
 def input_fn(request_body, request_content_type):
