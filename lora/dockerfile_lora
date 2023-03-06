@@ -18,11 +18,11 @@ RUN mkdir -p /opt/ml/code
 # install the SageMaker Training Toolkit 
 RUN pip3 install sagemaker-training
 
-COPY ./training/train.py /opt/ml/code/
+COPY ./training/requirements.txt /opt/ml/code/
 
-# this environment variable is used by the SageMaker training toolkit to determine our program entry point
+# this environment variable is used by the SageMaker training toolkit to         determine our program entry point
 ENV SAGEMAKER_PROGRAM train.py
-RUN pip install -r ./training/requirements.txt
+RUN pip install -r /opt/ml/code/requirements.txt
 
 RUN export TORCH_CUDA_ARCH_LIST="7.5 8.0 8.6" && export FORCE_CUDA="1" && pip install ninja triton==2.0.0.dev20221120 && git clone https://github.com/xieyongliang/xformers.git /opt/ml/code/repositories/xformers && cd /opt/ml/code/repositories/xformers && git submodule update --init --recursive && pip install -r requirements.txt && pip install -e . 
 
