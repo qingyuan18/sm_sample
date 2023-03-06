@@ -1,7 +1,7 @@
 datasets
 blendmodes==2022
 transformers==4.25.1
-accelerate==0.12.0
+accelerate
 basicsr==1.4.2
 gfpgan==1.3.8
 gradio==3.16.2

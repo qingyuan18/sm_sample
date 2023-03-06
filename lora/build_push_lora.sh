@@ -1,4 +1,4 @@
-algorithm_name=lora-finetuning-v3
+algorithm_name=lora-finetuning
 
 account=$(aws sts get-caller-identity --query Account --output text)
 

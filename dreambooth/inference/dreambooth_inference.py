@@ -110,7 +110,7 @@ def model_fn(model_dir):
 
 
     model = model.to("cuda")
-    model.enable_attention_slicing()
+    #model.enable_attention_slicing()
 
     return model
 
