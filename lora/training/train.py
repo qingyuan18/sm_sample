@@ -55,7 +55,7 @@ import pandas as pd
 logger = get_logger(__name__, log_level="INFO")
 console = logging.StreamHandler()
 console.setLevel(logging.DEBUG)
-logger.addHandler(console)
+#logger.addHandler(console)
 logger.setLevel(logging.DEBUG)
 
 def get_bucket_and_key(s3uri):

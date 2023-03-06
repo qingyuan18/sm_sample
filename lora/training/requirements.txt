@@ -1,6 +1,6 @@
 datasets
+diffusers
 blendmodes==2022
-transformers==4.25.1
 accelerate
 basicsr==1.4.2
 gfpgan==1.3.8
@@ -30,3 +30,8 @@ safetensors==0.2.7
 httpcore<=0.15
 deepspeed==0.7.4
 ninja
+torchvision
+transformers>=4.25.1
+ftfy
+tensorboard
+Jinja2
