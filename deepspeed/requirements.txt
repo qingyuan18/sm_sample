@@ -1,0 +1,17 @@
+diffusers==0.14.0
+transformers
+ftfy
+spacy
+boto3
+sagemaker
+nvgpu
+s3fs
+k_diffusion
+omegaconf
+imwatermark
+sentencepiece
+deepspeed==0.7.6
+ninja
+triton==2.0.0.dev20221120
+deepspeed-mii==0.0.4
+clip==0.2.0
