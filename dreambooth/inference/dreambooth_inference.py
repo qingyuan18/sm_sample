@@ -101,7 +101,7 @@ def model_fn(model_dir):
             mp_size=1,        # Number of GPU
             dtype=torch.float16, # dtype of the weights (fp16)
             replace_method="auto", # Lets DS autmatically identify the layer to replace
-            replace_with_kernel_inject=False, # replace the model with the kernel injector
+            replace_with_kernel_inject=False # replace the model with the kernel injector
         )
         print("model accelarate with deepspeed!")
     except Exception as e:
