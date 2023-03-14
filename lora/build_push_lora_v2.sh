@@ -20,6 +20,7 @@ pwd=$(aws ecr get-login-password --region ${region})
 docker login --username AWS -p ${pwd} ${account}.dkr.ecr.${region}.amazonaws.com
 
 mkdir -p ./sd_code
+cp ./training/requirements_v2.txt ./sd_code/
 cd ./sd_code/ && git clone https://github.com/kohya-ss/sd-scripts.git
 cd ../
 
