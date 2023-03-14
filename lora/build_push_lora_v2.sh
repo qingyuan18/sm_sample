@@ -28,3 +28,4 @@ cd ../
 docker build -t ${algorithm_name}  ./ -f ./dockerfile_lora_v2 > ./docker_build.log
 docker tag ${algorithm_name} ${fullname}
 docker push ${fullname}
+rm -rf ./sd_code
