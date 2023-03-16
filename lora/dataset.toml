@@ -9,4 +9,4 @@ batch_size = 2
 
   [[datasets.subsets]]
   image_dir = '/opt/ml/input/data/images/'
-  metadata_file = '/opt/ml/input/data/images/metadata.jsonl'
+  #metadata_file = '/opt/ml/input/data/images/metadata.jsonl'
