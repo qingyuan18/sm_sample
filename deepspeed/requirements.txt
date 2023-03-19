@@ -1,4 +1,4 @@
-diffusers==0.14.0
+diffusers==0.13.1
 transformers
 ftfy
 spacy
@@ -10,7 +10,7 @@ k_diffusion
 omegaconf
 imwatermark
 sentencepiece
-deepspeed==0.7.6
+deepspeed==0.8.2
 ninja
 triton==2.0.0.dev20221120
 deepspeed-mii==0.0.4
