@@ -25,9 +25,7 @@ docker login --username AWS -p ${pwd} ${account}.dkr.ecr.${region}.amazonaws.com
 
 # Build the docker image locally with the image name and then push it to ECR
 # with the full name.
-mkdir -p ./sd_code/extensions
-cd ./sd_code/extensions/ && git clone https://github.com/qingyuan18/sd_dreambooth_extension.git
-cd ../../
+mkdir -p ./sd_code
 docker build -t ${algorithm_name}  ./ -f ./Dockerfile.public-ecr
 docker tag ${algorithm_name} ${fullname}
 docker push ${fullname}

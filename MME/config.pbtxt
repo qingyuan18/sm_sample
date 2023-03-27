@@ -1,0 +1,11 @@
+name: "sd-model-1"
+platform: "pytorch_libtorch"
+max_batch_size: 1
+input {
+  name: "INPUT__0"
+  data_type: TYPE_STRING_JSON
+}
+output {
+  name: "OUTPUT__0"
+  data_type: TYPE_STRING_JSON
+}
