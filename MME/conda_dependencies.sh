@@ -6,7 +6,7 @@ source activate sd_env
 export PYTHONNOUSERSITE=True
 pip install torch 
 pip install transformers ftfy scipy accelerate
-pip install diffusers==0.9.0
+pip install diffusers==0.14.0
 pip install transformers[onnxruntime]
 pip install conda-pack
 conda-pack
