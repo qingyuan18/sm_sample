@@ -23,7 +23,7 @@ fi
 
 
 # AWS region, change this as needed
-region="eu-west-1"
+region="us-west-2"
 
 
 fullname="${account}.dkr.ecr.${region}.amazonaws.com/${image}:3"
@@ -39,7 +39,7 @@ fi
 
 
 # Get the login command from ECR in order to pull down the SageMaker PyTorch image
-aws ecr get-login-password --region $region | docker login --username AWS --password-stdin ${account}.dkr.ecr.eu-west-1.amazonaws.com
+aws ecr get-login-password --region $region | docker login --username AWS --password-stdin ${account}.dkr.ecr.us-west-2.amazonaws.com
 
 # Build the docker image locally with the image name and then push it to ECR
 # with the full name.

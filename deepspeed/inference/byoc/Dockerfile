@@ -4,6 +4,8 @@ RUN pip install --no-cache-dir boto3==1.26.64
 
 RUN pip install --no-cache-dir fastapi uvicorn sagemaker
 RUN pip install --no-cache-dir diffusers==0.14.0 accelerate==0.17.0 controlnet_aux
+RUN apt-get install libopenmpi-dev
+RUN apt-get install mpich
 RUN pip install --no-cache-dir mpi4py
 
 RUN pip install s3fs==2023.3.0
