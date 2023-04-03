@@ -47,7 +47,7 @@ from diffusers.utils import load_image
 
 import cv2
 import numpy as np
-
+import deepspeed
 #load utils and controle_net
 from utils import quick_download_s3,get_bucket_and_key,untar
 from control_net import ControlNetDectecProcessor,init_control_net_pipeline,init_control_net_model
@@ -207,8 +207,26 @@ model_name = os.environ.get("model_name", DEFAULT_MODEL)
 model_args = json.loads(os.environ['model_args']) if (
         'model_args' in os.environ) else None
 #warm model load 
-init_pipeline(model_name,model_args)
+warm_model=init_pipeline(model_name,model_args)
 
+
+def reload_model_with_deepspeed(model):
+    if deepspeed_enable:
+        try:
+            print("begin load deepspeed....")
+            deepspeed.init_distributed()
+            model=deepspeed.init_inference(
+                model=getattr(model,"model", model),      # Transformers models
+                mp_size=1,        # Number of GPU
+                dtype=torch.float16, # dtype of the weights (fp16)
+                replace_method="auto", # Lets DS autmatically identify the layer to replace
+                replace_with_kernel_inject=False, # replace the model with the kernel injector
+            )
+            print("model accelarate with deepspeed!")
+        except Exception as e:
+            print("deepspeed accelarate excpetion!")
+            print(e)
+    return model
 
 def model_fn(model_dir):
     """
@@ -309,6 +327,8 @@ def predict_fn(input_data, model):
     """
     Apply model to the incoming request
     """
+    if model is None:
+        model=warm_model
     print("=================predict_fn=================")
     print('input_data: ', input_data)
     prediction = []
@@ -382,6 +402,7 @@ def predict_fn(input_data, model):
                     images.append(grid_image)
                         
                 else:
+                    model=reload_model_with_deepspeed(model)
                     images = model(input_data["prompt"], image=init_img, negative_prompt=input_data["negative_prompt"],
                                num_inference_steps=input_data["steps"], num_images_per_prompt=input_data["count"], generator=generator).images
             # image watermark
