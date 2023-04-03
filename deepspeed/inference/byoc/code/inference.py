@@ -329,6 +329,8 @@ def predict_fn(input_data, model):
     """
     if model is None:
         model=warm_model
+        model = model.to("cuda")
+        model.enable_attention_slicing()
     print("=================predict_fn=================")
     print('input_data: ', input_data)
     prediction = []
