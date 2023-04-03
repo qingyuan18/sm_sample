@@ -1,4 +1,4 @@
-algorithm_name=sd-inference
+algorithm_name=sd-inference-deepspeed
 
 account=$(aws sts get-caller-identity --query Account --output text)
 
@@ -25,8 +25,6 @@ docker login --username AWS -p ${pwd} ${account}.dkr.ecr.${region}.amazonaws.com
 
 # Build the docker image locally with the image name and then push it to ECR
 # with the full name.
-mkdir -p ./sd_code
-docker build -t ${algorithm_name}  ./ -f ./Dockerfile.public-ecr
+docker build -t ${algorithm_name}  ./ -f ./Dockerfile
 docker tag ${algorithm_name} ${fullname}
 docker push ${fullname}
-rm -rf ./sd_code
