@@ -62,12 +62,12 @@ max_width = os.environ.get("max_width", 768)
 max_steps = os.environ.get("max_steps", 100)
 max_count = os.environ.get("max_count", 4)
 s3_bucket = os.environ.get("s3_bucket", "")
-watermarket=os.environ.get("watermarket", True)
+watermarket=os.environ.get("watermarket", False)
 watermarket_image=os.environ.get("watermarket_image", "sagemaker-logo-small.png")
 custom_region = os.environ.get("custom_region", None)
 safety_checker_enable = json.loads(os.environ.get("safety_checker_enable", "false"))
 control_net_enable=os.environ.get("control_net_enable", "enable")
-deepspeed_enable=os.environ.get("deepspeed", False)
+deepspeed_enable=os.environ.get("deepspeed", True)
 
 DEFAULT_MODEL="runwayml/stable-diffusion-v1-5"
 
