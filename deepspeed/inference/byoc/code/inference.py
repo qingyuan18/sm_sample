@@ -384,7 +384,7 @@ def predict_fn(input_data, model):
                 model.scheduler = input_data["sampler"].from_config(
                     model.scheduler.config)
             if input_image is None:
-                model=reload_model_with_deepspeed(model)
+                #model=reload_model_with_deepspeed(model)
                 images = model(input_data["prompt"], input_data["height"], input_data["width"], negative_prompt=input_data["negative_prompt"],
                                num_inference_steps=input_data["steps"], num_images_per_prompt=input_data["count"], generator=generator).images
             else:

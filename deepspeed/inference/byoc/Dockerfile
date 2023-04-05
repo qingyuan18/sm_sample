@@ -1,5 +1,5 @@
-FROM public.ecr.aws/o7x6j3x6/sd-dreambooth-finetuning-v2
-
+#FROM public.ecr.aws/o7x6j3x6/sd-dreambooth-finetuning-v2
+FROM 763104351884.dkr.ecr.us-west-2.amazonaws.com/djl-inference:0.21.0-deepspeed0.8.0-cu117
 RUN pip install --no-cache-dir boto3==1.26.64
 
 RUN pip install --no-cache-dir fastapi uvicorn sagemaker
