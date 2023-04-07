@@ -100,7 +100,7 @@ def check_chontrole_net(model_list):
             valid_model.append(f"{model}")
     print(f"valid_control_net model: {valid_model} ")
     return valid_model
-    
+
 
 
 
@@ -112,10 +112,10 @@ def canny_image_detector(image):
     image = image[:, :, None]
     image = np.concatenate([image, image, image], axis=2)
     canny_image = Image.fromarray(image)
-    
+
     return canny_image
 
-    
+
 def get_default_bucket():
     try:
         sagemaker_session = sagemaker.Session() if custom_region is None else sagemaker.Session(
@@ -127,7 +127,7 @@ def get_default_bucket():
             return s3_bucket
         else:
             return None
-            
+
 
 
 # need add more sampler
@@ -160,8 +160,8 @@ def init_pipeline(model_name: str,model_args=None):
     help load model from s3
     """
     print(f"=================init_pipeline:{model_name}=================")
-    
-    if control_net_enable:
+
+    if control_net_enable == "True" :
         model_name=DEFAULT_MODEL if "s3" in model_name else model_name
         controlnet_model = ControlNetModel.from_pretrained(f"{control_net_prefix}-canny", torch_dtype=torch.float16)
         pipe = StableDiffusionControlNetPipeline.from_pretrained(
@@ -170,7 +170,7 @@ def init_pipeline(model_name: str,model_args=None):
         print(f"load {model_name} with controle net")
         return pipe
 
-                
+
     model_path=model_name
     base_name=os.path.basename(model_name)
     try:
@@ -180,7 +180,7 @@ def init_pipeline(model_name: str,model_args=None):
                 model_path=f"/tmp/{local_path}"
                 print(f"need copy {model_name} to {model_path}")
                 os.makedirs(model_path)
-                fs.get(model_name,model_path+"/", recursive=True)
+                #fs.get(model_name,model_path+"/", recursive=True)
                 untar(f"/tmp/{local_path}/model.tar.gz",model_path)
                 os.remove(f"/tmp/{local_path}/model.tar.gz")
                 print("download and untar  completed")
@@ -195,18 +195,18 @@ def init_pipeline(model_name: str,model_args=None):
         print(f"pretrained model_path: {model_path}")
         if model_args is not None:
             return StableDiffusionPipeline.from_pretrained(
-                 model_path, **model_args)
+                model_path, **model_args)
         return StableDiffusionPipeline.from_pretrained(model_path)
     except Exception as ex:
         traceback.print_exc(file=sys.stdout)
         print(f"=================Exception================={ex}")
         return None
 
-    
+
 model_name = os.environ.get("model_name", DEFAULT_MODEL)
 model_args = json.loads(os.environ['model_args']) if (
         'model_args' in os.environ) else None
-#warm model load 
+#warm model load
 warm_model=init_pipeline(model_name,model_args)
 
 
@@ -231,13 +231,13 @@ def reload_model_with_deepspeed(model):
 def model_fn(model_dir):
     """
     Load the model for inference,load model from os.environ['model_name'],diffult use runwayml/stable-diffusion-v1-5
-    
+
     """
     print("=================model_fn=================")
     print(f"model_dir: {model_dir}")
     model_name = os.environ.get("model_name", DEFAULT_MODEL)
     model_args = json.loads(os.environ['model_args']) if (
-        'model_args' in os.environ) else None
+            'model_args' in os.environ) else None
     task = os.environ['task'] if ('task' in os.environ) else "text-to-image"
     print(
         f'model_name: {model_name},  model_args: {model_args}, task: {task} ')
@@ -245,9 +245,9 @@ def model_fn(model_dir):
     torch.backends.cudnn.benchmark = True
     torch.backends.cuda.matmul.allow_tf32 = True
 
-   
+
     model = init_pipeline(model_name,model_args)
-    
+
     if safety_checker_enable is False :
         #model.safety_checker = lambda images, clip_input: (images, False)
         model.safety_checker=None
@@ -265,8 +265,8 @@ def model_fn(model_dir):
         except Exception as e:
             print("deepspeed accelarate excpetion!")
             print(e)
-        
-    
+
+
     model = model.to("cuda")
     model.enable_attention_slicing()
 
@@ -284,7 +284,7 @@ def input_fn(request_body, request_content_type):
 
 def clamp_input(input_data, minn, maxn):
     """
-    clamp_input check input 
+    clamp_input check input
     """
     return max(min(maxn, input_data), minn)
 
@@ -310,14 +310,14 @@ def prepare_opt(input_data):
     opt["input_image"] = input_data.get("input_image", None)
     opt["control_net_model"] = input_data.get("control_net_model","")
     opt["control_net_detect"] = input_data.get("control_net_detect","true")
-    
+
     if  opt["control_net_model"] not in control_net_postfix:
         opt["control_net_model"]=""
-    
+
 
     if opt["sampler"] is not None:
         opt["sampler"] = samplers[opt["sampler"]
-                                  ] if opt["sampler"] in samplers else samplers["euler_a"]
+        ] if opt["sampler"] in samplers else samplers["euler_a"]
 
     print(f"=================prepare_opt=================\n{opt}")
     return opt
@@ -329,7 +329,7 @@ def predict_fn(input_data, model):
     """
     if model is None:
         model=warm_model
-        model = model.to("cuda")
+        model.to("cuda")
         model.enable_attention_slicing()
     print("=================predict_fn=================")
     print('input_data: ', input_data)
@@ -339,13 +339,13 @@ def predict_fn(input_data, model):
 
 
         bucket= get_default_bucket()
-    
+
         if bucket is None:
             raise Exception("Need setup default bucket")
         default_output_s3uri = f's3://{bucket}/stablediffusion/asyncinvoke/images/'
         output_s3uri = input_data['output_s3uri'] if 'output_s3uri' in input_data else default_output_s3uri
         infer_args = input_data['infer_args'] if (
-            'infer_args' in input_data) else None
+                'infer_args' in input_data) else None
         print('infer_args: ', infer_args)
         init_image = infer_args['init_image'] if infer_args is not None and 'init_image' in infer_args else None
         input_image = input_data['input_image']
@@ -357,28 +357,28 @@ def predict_fn(input_data, model):
         #   text2img = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4")
         #   img2img = StableDiffusionImg2ImgPipeline(**text2img.components)
         #   inpaint = StableDiffusionInpaintPipeline(**text2img.components)
-        #  use StableDiffusionImg2ImgPipeline for input_image        
+        #  use StableDiffusionImg2ImgPipeline for input_image
         if input_image is not None:
             response = requests.get(input_image, timeout=5)
             init_img = Image.open(io.BytesIO(response.content)).convert("RGB")
             init_img = init_img.resize(
                 (input_data["width"], input_data["height"]))
-            if control_net_enable is False:
+            if control_net_enable == "False":
                 model = StableDiffusionImg2ImgPipeline(**model.components)  # need use Img2ImgPipeline
-                
-                
+
+
         generator = torch.Generator(
             device='cuda').manual_seed(input_data["seed"])
-        
+
         control_net_model_name=input_data.get("control_net_model")
         control_net_detect=input_data.get("control_net_detect")
-        if control_net_enable:
+        if control_net_enable == "True":
             if control_net_detect=="true":
                 print(f"detect_process {input_image}")
                 control_net_input_image=processor.detect_process(control_net_model_name,input_image)
             else:
                 control_net_input_image=load_image(input_image)
-        
+
         with autocast("cuda"):
             if model != None:
                 model.scheduler = input_data["sampler"].from_config(
@@ -388,25 +388,25 @@ def predict_fn(input_data, model):
                 images = model(input_data["prompt"], input_data["height"], input_data["width"], negative_prompt=input_data["negative_prompt"],
                                num_inference_steps=input_data["steps"], num_images_per_prompt=input_data["count"], generator=generator).images
             else:
-                if control_net_enable:
+                if control_net_enable=="True":
                     model_name = os.environ.get("model_name", DEFAULT_MODEL)
-                    pipe=init_control_net_pipeline(model_name,input_data["control_net_model"])    
+                    pipe=init_control_net_pipeline(model_name,input_data["control_net_model"])
                     pipe.enable_model_cpu_offload()
                     images = pipe(input_data["prompt"], image=control_net_input_image, negative_prompt=input_data["negative_prompt"],
-                               num_inference_steps=input_data["steps"], generator=generator).images
+                                  num_inference_steps=input_data["steps"], generator=generator).images
                     grid_images=[]
                     grid_images.insert(0,control_net_input_image)
                     grid_images.insert(0,init_img)
                     grid_images.extend(images)
                     grid_image=image_grid(grid_images,1,len(grid_images))
-                    
+
                     if control_net_detect=="true":
                         images.append(control_net_input_image)
                     images.append(grid_image)
-                        
+
                 else:
                     images = model(input_data["prompt"], image=init_img, negative_prompt=input_data["negative_prompt"],
-                               num_inference_steps=input_data["steps"], num_images_per_prompt=input_data["count"], generator=generator).images
+                                   num_inference_steps=input_data["steps"], num_images_per_prompt=input_data["count"], generator=generator).images
             # image watermark
             if watermarket:
                 watermarket_image_path=f"/opt/ml/model/{watermarket_image}"
@@ -420,7 +420,7 @@ def predict_fn(input_data, model):
                     crop_image = crop_image.convert("RGBA")
                 layer = Image.new("RGBA",[input_data["width"],input_data["height"]],(0,0,0,0))
                 layer.paste(crop_image,(input_data["width"]-210, input_data["height"]-49))
-            
+
             for image in images:
                 bucket, key = get_bucket_and_key(output_s3uri)
                 key = f'{key}{uuid.uuid4()}.jpg'
@@ -430,7 +430,7 @@ def predict_fn(input_data, model):
                     out.save(buf, format='JPEG')
                 else:
                     image.save(buf, format='JPEG')
-                
+
                 s3_client.put_object(
                     Body=buf.getvalue(),
                     Bucket=bucket,
