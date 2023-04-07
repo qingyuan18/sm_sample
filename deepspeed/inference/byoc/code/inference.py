@@ -92,6 +92,15 @@ control_net_postfix=[
 
 controle_net_cache={}
 
+
+def download_model(model_path,target_path):
+    bucket, key = get_bucket_and_key(model_path)
+    s3_client.download_file(
+        bucket,
+        key,
+        target_path
+    )
+
 def check_chontrole_net(model_list):
     model_list=model_list.split(",")
     valid_model=[]
@@ -179,10 +188,21 @@ def init_pipeline(model_name: str,model_args=None):
                 local_path= "/".join(model_name.split("/")[-2:-1])
                 model_path=f"/tmp/{local_path}"
                 print(f"need copy {model_name} to {model_path}")
-                os.makedirs(model_path)
+                print("downloading model from s3:", model_name)
+                if not os.path.exists(model_path):
+                    os.makedirs(model_path)
+                #download trained model from model_path(s3uri)
+                download_model(model_name,model_path+"/model.tar.gz")
+                print("model download to target path:", model_path)
+                #extract model.tar.gz in /tmp/models folder
+                model_file = tarfile.open(model_path+"/model.tar.gz")
+                model_file.extractall(model_path)
+                print('model extracted: ', os.listdir(model_path))
+                model_file.close()
+                os.remove(f"/tmp/{model_path}/model.tar.gz")
                 #fs.get(model_name,model_path+"/", recursive=True)
-                untar(f"/tmp/{local_path}/model.tar.gz",model_path)
-                os.remove(f"/tmp/{local_path}/model.tar.gz")
+                #untar(f"/tmp/{local_path}/model.tar.gz",model_path)
+                #os.remove(f"/tmp/{local_path}/model.tar.gz")
                 print("download and untar  completed")
             else:
                 local_path= "/".join(model_name.split("/")[-2:])
