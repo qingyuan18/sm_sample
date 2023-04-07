@@ -30,7 +30,7 @@ COPY ./sd_code/ /opt/ml/code/
 
 RUN pip install -r /opt/ml/code/extensions/sd_dreambooth_extension/requirements.txt
 # this environment variable is used by the SageMaker training toolkit to determine our program entry point
-ENV SAGEMAKER_PROGRAM /opt/ml/code/sd_dreambooth_extension/dreambooth/train_dreambooth.py
+ENV SAGEMAKER_PROGRAM /opt/ml/code/extensions/sd_dreambooth_extension/dreambooth/train_dreambooth.py
 
 #RUN python3 -m venv /opt/ml/code/venv
 #RUN echo "Y"|apt install build-essential
