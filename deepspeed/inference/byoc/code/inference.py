@@ -199,7 +199,7 @@ def init_pipeline(model_name: str,model_args=None):
                 model_file.extractall(model_path)
                 print('model extracted: ', os.listdir(model_path))
                 model_file.close()
-                os.remove(f"/tmp/{model_path}/model.tar.gz")
+                os.remove(model_path+"/model.tar.gz")
                 #fs.get(model_name,model_path+"/", recursive=True)
                 #untar(f"/tmp/{local_path}/model.tar.gz",model_path)
                 #os.remove(f"/tmp/{local_path}/model.tar.gz")
