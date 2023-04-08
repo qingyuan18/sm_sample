@@ -1,0 +1,13 @@
+FROM public.ecr.aws/o7x6j3x6/sd-dreambooth-finetuning-v2
+RUN pip install --no-cache-dir boto3==1.26.64
+RUN pip install --no-cache-dir fastapi uvicorn sagemaker
+RUN curl -L https://github.com/peak/s5cmd/releases/download/v2.0.0/s5cmd_2.0.0_Linux-64bit.tar.gz | tar -xz && mv s5cmd /opt/conda/bin/
+
+COPY simple /opt/ml/code/
+RUN pip install -r /opt/ml/code/requirements.txt
+ENV PATH="/opt/ml/code/:${PATH}"
+
+WORKDIR /opt/ml/code/
+RUN chmod 755 serve
+
+
