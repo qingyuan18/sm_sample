@@ -31,26 +31,15 @@ import torch
 
 from PIL import Image
 from transformers import pipeline as depth_pipeline
-
 from torch import autocast
 from diffusers import StableDiffusionPipeline,StableDiffusionImg2ImgPipeline
 from diffusers import AltDiffusionPipeline, AltDiffusionImg2ImgPipeline
 from diffusers import EulerDiscreteScheduler, EulerAncestralDiscreteScheduler, HeunDiscreteScheduler, LMSDiscreteScheduler, KDPM2DiscreteScheduler, KDPM2AncestralDiscreteScheduler,DDIMScheduler
-
-from controlnet_aux import OpenposeDetector
-from diffusers import StableDiffusionControlNetPipeline, ControlNetModel
 from diffusers import UniPCMultistepScheduler
-from controlnet_aux import OpenposeDetector,MLSDdetector,HEDdetector,HEDdetector
-
 from diffusers.utils import load_image
-
-
-import cv2
-import numpy as np
 import deepspeed
-#load utils and controle_net
 from utils import quick_download_s3,get_bucket_and_key,untar
-from control_net import ControlNetDectecProcessor,init_control_net_pipeline,init_control_net_model
+
 
 
 
@@ -66,7 +55,6 @@ watermarket=os.environ.get("watermarket", False)
 watermarket_image=os.environ.get("watermarket_image", "sagemaker-logo-small.png")
 custom_region = os.environ.get("custom_region", None)
 safety_checker_enable = json.loads(os.environ.get("safety_checker_enable", "false"))
-control_net_enable=os.environ.get("control_net_enable", "False")
 deepspeed_enable=os.environ.get("deepspeed", "True")
 
 DEFAULT_MODEL="runwayml/stable-diffusion-v1-5"
