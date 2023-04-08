@@ -262,8 +262,7 @@ def predict_fn(input_data, model):
             init_img = Image.open(io.BytesIO(response.content)).convert("RGB")
             init_img = init_img.resize(
                 (input_data["width"], input_data["height"]))
-            if control_net_enable == "False":
-                model = StableDiffusionImg2ImgPipeline(**model.components)  # need use Img2ImgPipeline
+            model = StableDiffusionImg2ImgPipeline(**model.components)  # need use Img2ImgPipeline
 
 
         generator = torch.Generator(device='cuda').manual_seed(input_data["seed"])
