@@ -54,7 +54,6 @@ s3_bucket = os.environ.get("s3_bucket", "")
 watermarket=os.environ.get("watermarket", False)
 watermarket_image=os.environ.get("watermarket_image", "sagemaker-logo-small.png")
 custom_region = os.environ.get("custom_region", None)
-safety_checker_enable = json.loads(os.environ.get("safety_checker_enable", "false"))
 deepspeed_enable=os.environ.get("deepspeed", "True")
 
 DEFAULT_MODEL="runwayml/stable-diffusion-v1-5"
