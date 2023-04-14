@@ -248,49 +248,49 @@ def reload_model_with_deepspeed(model):
             print(e)
     return model
 
-def model_fn(model_dir):
-    """
-    Load the model for inference,load model from os.environ['model_name'],diffult use runwayml/stable-diffusion-v1-5
+def init_normal_model(model_name,model_args):
+    model_path=model_name
+    base_name=os.path.basename(model_name)
+    try:
+        if model_name.startswith("s3://"):
+            if base_name=="model.tar.gz":
+                local_path= "/".join(model_name.split("/")[-2:-1])
+                model_path=f"/tmp/{local_path}"
+                print(f"need copy {model_name} to {model_path}")
+                print("downloading model from s3:", model_name)
+                if not os.path.exists(model_path):
+                    os.makedirs(model_path)
+                #download trained model from model_path(s3uri)
+                download_model(model_name,model_path+"/model.tar.gz")
+                print("model download to target path:", model_path)
+                #extract model.tar.gz in /tmp/models folder
+                model_file = tarfile.open(model_path+"/model.tar.gz")
+                model_file.extractall(model_path)
+                print('model extracted: ', os.listdir(model_path))
+                model_file.close()
+                os.remove(model_path+"/model.tar.gz")
+                #fs.get(model_name,model_path+"/", recursive=True)
+                #untar(f"/tmp/{local_path}/model.tar.gz",model_path)
+                #os.remove(f"/tmp/{local_path}/model.tar.gz")
+                print("download and untar  completed")
+            else:
+                local_path= "/".join(model_name.split("/")[-2:])
+                model_path=f"/tmp/{local_path}"
+                print(f"need copy {model_name} to {model_path}")
+                os.makedirs(model_path)
+                fs.get(model_name,model_path, recursive=True)
+                print("download completed")
 
-    """
-    print("=================model_fn=================")
-    print(f"model_dir: {model_dir}")
-    model_name = os.environ.get("model_name", DEFAULT_MODEL)
-    model_args = json.loads(os.environ['model_args']) if (
-            'model_args' in os.environ) else None
-    task = os.environ['task'] if ('task' in os.environ) else "text-to-image"
-    print(
-        f'model_name: {model_name},  model_args: {model_args}, task: {task} ')
+        print(f"pretrained model_path: {model_path}")
+        if model_args is not None:
+            return StableDiffusionPipeline.from_pretrained(
+                model_path, **model_args)
+        return StableDiffusionPipeline.from_pretrained(model_path)
+    except Exception as ex:
+        traceback.print_exc(file=sys.stdout)
+        print(f"=================Exception================={ex}")
+        return None
 
-    torch.backends.cudnn.benchmark = True
-    torch.backends.cuda.matmul.allow_tf32 = True
-
-
-    model = init_pipeline(model_name,model_args)
-
-    if safety_checker_enable is False :
-        #model.safety_checker = lambda images, clip_input: (images, False)
-        model.safety_checker=None
-    if deepspeed_enable:
-        try:
-            print("begin load deepspeed....")
-            model=deepspeed.init_inference(
-                model=getattr(model,"model", model),      # Transformers models
-                mp_size=1,        # Number of GPU
-                dtype=torch.float16, # dtype of the weights (fp16)
-                replace_method="auto", # Lets DS autmatically identify the layer to replace
-                replace_with_kernel_inject=False, # replace the model with the kernel injector
-            )
-            print("model accelarate with deepspeed!")
-        except Exception as e:
-            print("deepspeed accelarate excpetion!")
-            print(e)
-
-
-    model = model.to("cuda")
-    model.enable_attention_slicing()
-
-    return model
 
 
 def input_fn(request_body, request_content_type):
@@ -356,10 +356,7 @@ def predict_fn(input_data, model):
     prediction = []
 
     try:
-
-
         bucket= get_default_bucket()
-
         if bucket is None:
             raise Exception("Need setup default bucket")
         default_output_s3uri = f's3://{bucket}/stablediffusion/asyncinvoke/images/'
@@ -405,8 +402,9 @@ def predict_fn(input_data, model):
                     model.scheduler.config)
             if input_image is None:
                 print("=====model is:=========")
-                print(model)
-                #model=reload_model_with_deepspeed(model)
+                model=init_normal_model(model_name,model_args)
+                #if deepspeed_enable == "True":
+                #   model=reload_model_with_deepspeed(model)
                 #images = model(input_data["prompt"], input_data["height"], input_data["width"], negative_prompt=input_data["negative_prompt"],
                 images = model(input_data["prompt"], negative_prompt=input_data["negative_prompt"],
                                num_inference_steps=input_data["steps"], num_images_per_prompt=input_data["count"], generator=generator).images
