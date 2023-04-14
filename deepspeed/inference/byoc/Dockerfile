@@ -3,7 +3,7 @@ FROM public.ecr.aws/o7x6j3x6/sd-dreambooth-finetuning-v2
 RUN pip install --no-cache-dir boto3==1.26.64
 
 RUN pip install --no-cache-dir fastapi uvicorn sagemaker
-RUN pip install --no-cache-dir diffusers==0.14.0 accelerate==0.17.0 controlnet_aux
+RUN pip install --no-cache-dir diffusers==0.12.0 accelerate==0.17.0 controlnet_aux
 
 
 RUN pip install s3fs==2023.3.0
