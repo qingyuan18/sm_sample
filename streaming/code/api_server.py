@@ -17,6 +17,7 @@ app.add_middleware( CORSMiddleware,
     )
 
 bot = ChatGLM()
+MAX_HISTORY = 5
 
 @app.get('/ping')
 async def ping():

@@ -85,14 +85,13 @@ class ChatGLM():
         return logger
 
 
-    tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm-6b", trust_remote_code=True)
-
     def __init__(self) -> None:
-            logger.info("Start initialize model...")
-            self.model = self._model(quantize_level, gpu_id)
-            self.model.eval()
-            _, _ = self.model.chat(self.tokenizer, "你好", history=[])
-            logger.info("Model initialization finished.")
+        logger.info("Start initialize model...")
+        self.tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm-6b", trust_remote_code=True)
+        self.model = self._model(quantize_level, gpu_id)
+        self.model.eval()
+        _, _ = self.model.chat(self.tokenizer, "你好", history=[])
+        logger.info("Model initialization finished.")
 
     def _model(self):
         return model_fn(None)
